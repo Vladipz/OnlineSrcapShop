@@ -1,0 +1,26 @@
+<article>
+  @if (failedImageUrl() !== product().imageUrl) {
+    <img
+      [src]="product().imageUrl"
+      [alt]="product().name"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+      (error)="failedImageUrl.set(product().imageUrl)"
+    />
+  } @else {
+    <div class="image-fallback" role="img" aria-label="Image unavailable">Image unavailable</div>
+  }
+  <h2>{{ product().name }}</h2>
+  <p class="price">
+    @if (product().price !== null) {
+      {{ product().currencyCode }} {{ product().price | number: '1.2-2' }}
+    } @else {
+      Price unavailable
+    }
+  </p>
+  @if (product().description) {
+    <p class="description">{{ product().description }}</p>
+  }
+  <a [href]="product().sourceUrl" target="_blank" rel="noopener noreferrer">View source ↗</a>
+  <ng-content />
+</article>

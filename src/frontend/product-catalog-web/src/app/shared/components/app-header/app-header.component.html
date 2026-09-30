@@ -1,0 +1,16 @@
+<header>
+  <a class="brand" routerLink="/catalog">Product Catalog</a>
+  <nav aria-label="Main navigation">
+    <a routerLink="/catalog" routerLinkActive="active">Catalog</a>
+    @if (auth.isAdmin()) {
+      <a routerLink="/import" routerLinkActive="active">Import</a>
+    }
+  </nav>
+  <span class="account">{{ auth.user()?.email }}</span>
+  <button type="button" (click)="logout()" [disabled]="pending()">
+    {{ pending() ? 'Signing out…' : 'Sign out' }}
+  </button>
+</header>
+@if (error()) {
+  <p class="error header-error" role="alert">{{ error() }}</p>
+}

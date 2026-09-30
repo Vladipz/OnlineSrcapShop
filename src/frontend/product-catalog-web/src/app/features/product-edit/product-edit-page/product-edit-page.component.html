@@ -1,0 +1,54 @@
+<h1>Edit product</h1>
+@if (loading()) {
+  <p role="status">Loading product…</p>
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}
+@if (!loading() && product(); as product) {
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <fieldset [disabled]="pending()">
+      <label for="name">Name</label>
+      <input id="name" formControlName="name" maxlength="300" required />
+      @if (fieldError('name')) {
+        <p class="error">{{ fieldError('name') }}</p>
+      }
+      <label for="description">Description (optional)</label>
+      <textarea id="description" formControlName="description" maxlength="5000"></textarea>
+      @if (fieldError('description')) {
+        <p class="error">{{ fieldError('description') }}</p>
+      }
+      <label for="imageUrl">Image URL</label>
+      <input id="imageUrl" type="url" formControlName="imageUrl" maxlength="2048" required />
+      @if (fieldError('imageUrl')) {
+        <p class="error">{{ fieldError('imageUrl') }}</p>
+      }
+      <label for="price">Price (optional)</label>
+      <input id="price" type="number" formControlName="price" min="0" step="any" />
+      @if (fieldError('price')) {
+        <p class="error">{{ fieldError('price') }}</p>
+      }
+      <label for="currencyCode">Currency code (optional)</label>
+      <input id="currencyCode" formControlName="currencyCode" maxlength="3" />
+      @if (fieldError('currencyCode')) {
+        <p class="error">{{ fieldError('currencyCode') }}</p>
+      }
+      <p class="source">
+        Source (read-only):
+        <a [href]="product.sourceUrl" target="_blank" rel="noopener noreferrer">{{
+          product.sourceUrl
+        }}</a>
+      </p>
+      <div class="actions">
+        <button class="primary" type="submit">{{ pending() ? 'Saving…' : 'Save changes' }}</button>
+        <button type="button" (click)="form.reset(product)">Reset</button>
+      </div>
+    </fieldset>
+  </form>
+}
+<div class="actions">
+  @if (!product() && !loading()) {
+    <button type="button" (click)="load()">Retry</button>
+  }
+  <a class="button" routerLink="/catalog">Back to catalog</a>
+</div>

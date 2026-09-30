@@ -1,0 +1,33 @@
+header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem max(1rem, calc((100% - 1120px) / 2));
+  border-bottom: 1px solid #ddd;
+  flex-wrap: wrap;
+}
+.brand {
+  font-weight: 700;
+  text-decoration: none;
+}
+nav {
+  display: flex;
+  gap: 1rem;
+}
+.active {
+  font-weight: 700;
+}
+.account {
+  margin-left: auto;
+  overflow-wrap: anywhere;
+}
+.header-error {
+  max-width: 1120px;
+  margin: 1rem auto;
+}
+@media (max-width: 600px) {
+  .account {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
