@@ -58,7 +58,9 @@ public static class DependencyInjection
             options.Cookie.Name = "ProductCatalog.Auth";
             options.Cookie.HttpOnly = true;
             options.Cookie.SameSite = SameSiteMode.Strict;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            options.Cookie.SecurePolicy = configuration.GetValue<bool>("Deployment:CookieSecureAlways")
+                ? CookieSecurePolicy.Always
+                : CookieSecurePolicy.SameAsRequest;
             options.SlidingExpiration = true;
             options.ExpireTimeSpan = TimeSpan.FromHours(8);
             options.Events.OnRedirectToLogin = context =>

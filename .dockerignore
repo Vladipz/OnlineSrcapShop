@@ -14,3 +14,9 @@
 .env.*
 !.env.example
 specification.md
+TODO.md
+data
+tls
+**/*.pfx
+**/*.pem
+**/*.key

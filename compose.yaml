@@ -1,0 +1,49 @@
+name: product-catalog
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: src/backend/ProductCatalog.Api/Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Data Source=/app/data/catalog.db
+      Deployment__DataProtectionKeysPath: /app/data/keys
+      Deployment__KnownProxy: 172.28.85.2
+      SeedUsers__Enabled: ${SEED_USERS_ENABLED:-true}
+      SeedUsers__Admin__Email: ${ADMIN_EMAIL:-admin@example.com}
+      SeedUsers__Admin__Password: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in your local .env}
+      SeedUsers__User__Email: ${USER_EMAIL:-user@example.com}
+      SeedUsers__User__Password: ${USER_PASSWORD:?Set USER_PASSWORD in your local .env}
+    volumes:
+      - ./data:/app/data
+    networks:
+      catalog:
+        ipv4_address: 172.28.85.3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: src/frontend/product-catalog-web/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      catalog:
+        ipv4_address: 172.28.85.2
+
+networks:
+  catalog:
+    ipam:
+      config:
+        - subnet: 172.28.85.0/24

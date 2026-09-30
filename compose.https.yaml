@@ -1,0 +1,13 @@
+# Optional direct TLS termination in Nginx; requires Docker Compose 2.24.4+.
+services:
+  backend:
+    environment:
+      Deployment__CookieSecureAlways: "true"
+  frontend:
+    ports: !override
+      - "443:8443"
+    volumes:
+      - ./deployment/nginx/https.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${TLS_CERTIFICATE_DIR:?Set TLS_CERTIFICATE_DIR to a directory containing fullchain.pem and privkey.pem}:/etc/nginx/tls:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-check-certificate", "-q", "-O", "/dev/null", "https://127.0.0.1:8443/health"]
