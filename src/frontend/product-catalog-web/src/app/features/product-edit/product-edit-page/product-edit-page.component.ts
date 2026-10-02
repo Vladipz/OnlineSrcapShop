@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { apiErrorMessage, fieldErrors } from '../../../core/http/api-error';
@@ -16,10 +17,11 @@ import { ProductsApiService } from '../../catalog/data-access/products-api.servi
   templateUrl: './product-edit-page.component.html',
   styleUrl: './product-edit-page.component.scss',
 })
-export class ProductEditPageComponent implements OnInit {
+export class ProductEditPageComponent {
   private readonly api = inject(ProductsApiService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private loadVersion = 0;
   protected readonly product = signal<Product | null>(null);
   protected readonly loading = signal(true);
   protected readonly pending = signal(false);
@@ -33,13 +35,16 @@ export class ProductEditPageComponent implements OnInit {
     currencyCode: ['', Validators.maxLength(3)],
   });
 
-  ngOnInit(): void {
-    void this.load();
+  constructor() {
+    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe(() => void this.load());
   }
 
   protected async load(): Promise<void> {
+    const version = ++this.loadVersion;
     this.loading.set(true);
     this.error.set('');
+    this.errors.set({});
+    this.product.set(null);
     try {
       const id = Number(this.route.snapshot.paramMap.get('id'));
       if (!Number.isSafeInteger(id) || id <= 0) {
@@ -47,12 +52,13 @@ export class ProductEditPageComponent implements OnInit {
         return;
       }
       const product = await this.api.get(id);
+      if (version !== this.loadVersion) return;
       this.product.set(product);
       this.form.reset(product);
     } catch (error) {
-      this.error.set(apiErrorMessage(error));
+      if (version === this.loadVersion) this.error.set(apiErrorMessage(error));
     } finally {
-      this.loading.set(false);
+      if (version === this.loadVersion) this.loading.set(false);
     }
   }
 

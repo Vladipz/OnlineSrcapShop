@@ -1,6 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, input, signal } from '@angular/core';
-import { ProductFields } from '../data-access/product.models';
+import { Product } from '../data-access/product.models';
 
 @Component({
   selector: 'app-product-card',
@@ -9,6 +9,6 @@ import { ProductFields } from '../data-access/product.models';
   styleUrl: './product-card.component.scss',
 })
 export class ProductCardComponent {
-  readonly product = input.required<ProductFields & { sourceUrl: string }>();
+  readonly product = input.required<Product>();
   protected readonly failedImageUrl = signal('');
 }

@@ -35,7 +35,7 @@ export function apiErrorMessage(error: unknown): string {
     case 409:
       return 'The data changed during this request. Reload or retry; existing products are not overwritten.';
     case 422:
-      return 'Only HTTP/HTTPS listing pages on books.toscrape.com are supported.';
+      return 'Enter a listing URL from a supported store using its standard HTTP/HTTPS port.';
     case 502:
       return 'The source could not be loaded or parsed. Please try again later.';
     default:

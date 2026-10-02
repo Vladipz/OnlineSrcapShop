@@ -7,7 +7,7 @@ namespace ProductCatalog.Api.Parsing;
 
 public sealed class SourcePageClient(IHttpClientFactory clientFactory, IOptions<ParserOptions> options)
 {
-    public const string ClientName = "BooksToScrape";
+    public const string ClientName = "ProductSource";
     private const int MaxPageBytes = 2 * 1024 * 1024;
 
     public async Task<(string Html, Uri FinalUri)> LoadAsync(Uri uri, CancellationToken cancellationToken)

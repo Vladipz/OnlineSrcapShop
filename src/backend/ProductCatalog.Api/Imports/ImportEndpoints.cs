@@ -35,7 +35,7 @@ public static class ImportEndpoints
         if (!SourceUrlPolicy.IsSupported(uri))
         {
             return Results.Problem(statusCode: StatusCodes.Status422UnprocessableEntity,
-                title: "Unsupported source", detail: "Only books.toscrape.com on its standard HTTP/HTTPS ports is supported.");
+                title: "Unsupported source", detail: "The URL must belong to a supported store and use its standard HTTP/HTTPS port.");
         }
 
         return Results.Ok(await service.ImportAsync(uri, ct));

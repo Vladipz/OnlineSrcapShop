@@ -11,7 +11,7 @@
 @if (loading()) {
   <p role="status">Loading catalog…</p>
 } @else if (products().length === 0 && !error()) {
-  <p>No products yet. An Admin can import a listing from Books to Scrape.</p>
+  <p>No products yet. An Admin can import a listing from a supported store.</p>
 } @else {
   <p class="muted">{{ products().length }} products</p>
   <div class="products-grid">
