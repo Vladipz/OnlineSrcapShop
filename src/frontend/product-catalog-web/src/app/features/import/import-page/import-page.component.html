@@ -1,71 +1,36 @@
 <h1>Import products</h1>
-<p>
-  Books to Scrape listing pages only; up to 20 books per import. Images are linked, not downloaded.
-</p>
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
-}
-@if (preview(); as preview) {
-  <p class="source">
-    Source:
-    <a [href]="preview.sourceUrl" target="_blank" rel="noopener noreferrer">{{
-      preview.sourceUrl
-    }}</a>
-  </p>
-  <p class="status">
-    Found: {{ preview.found }} · New: {{ preview.newCount }} · Already imported:
-    {{ preview.duplicateCount }} · Failed: {{ preview.failed }}
-  </p>
-  @if (preview.failed) {
-    <p>
-      Some book details could not be parsed and were excluded. Other products can still be imported.
+<p>Enter a Books to Scrape listing URL to save up to 20 books. Existing products are skipped.</p>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label for="sourceUrl">Listing URL</label>
+  <input
+    id="sourceUrl"
+    type="url"
+    formControlName="sourceUrl"
+    maxlength="2048"
+    [readOnly]="pending()"
+    required
+  />
+  @if (form.controls.sourceUrl.touched && form.controls.sourceUrl.invalid) {
+    <p class="error">
+      Enter an absolute HTTP/HTTPS URL, up to 2048 characters, without credentials.
     </p>
   }
-  <p>
-    Preview has not saved anything. Confirmation re-parses the source; counts may change. Existing
-    products and manual edits are preserved.
-  </p>
+  @for (message of errors()['sourceurl'] ?? []; track $index) {
+    <p class="error">{{ message }}</p>
+  }
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
   <div class="actions">
-    <button class="primary" type="button" (click)="confirm()" [disabled]="pending()">
-      {{ pending() ? 'Importing…' : 'Confirm import' }}
+    <button class="primary" type="submit" [disabled]="pending()">
+      {{ pending() ? 'Importing products...' : 'Import products' }}
     </button>
-    <button type="button" (click)="back()" [disabled]="pending()">Back</button>
+    <a class="button" routerLink="/catalog">View catalog</a>
   </div>
-  <div class="products-grid">
-    @for (product of preview.products; track $index) {
-      <app-product-card [product]="product"
-        ><p class="badge">
-          {{ product.alreadyImported ? 'Already imported — will be skipped' : 'New product' }}
-        </p></app-product-card
-      >
-    }
-  </div>
-} @else {
-  <form [formGroup]="form" (ngSubmit)="parse()">
-    <label for="sourceUrl">Listing URL</label>
-    <input
-      id="sourceUrl"
-      type="url"
-      formControlName="sourceUrl"
-      maxlength="2048"
-      [readOnly]="pending()"
-      required
-    />
-    @if (form.controls.sourceUrl.touched && form.controls.sourceUrl.invalid) {
-      <p class="error">
-        Enter an absolute HTTP/HTTPS URL, up to 2048 characters, without credentials.
-      </p>
-    }
-    @for (message of errors()['sourceurl'] ?? []; track $index) {
-      <p class="error">{{ message }}</p>
-    }
-    <div class="actions">
-      <button class="primary" type="submit" [disabled]="pending()">
-        {{ pending() ? 'Parsing listing and book details…' : 'Preview import' }}
-      </button>
-    </div>
-    @if (pending()) {
-      <p role="status">This may take a moment. No products are being saved.</p>
-    }
-  </form>
+</form>
+@if (result(); as result) {
+  <p class="status" role="status">
+    Import complete: {{ result.found }} found, {{ result.created }} added,
+    {{ result.skipped }} skipped, {{ result.failed }} failed.
+  </p>
 }

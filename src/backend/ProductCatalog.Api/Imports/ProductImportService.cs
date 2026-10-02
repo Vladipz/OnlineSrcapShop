@@ -6,25 +6,12 @@ using ProductCatalog.Api.Products;
 
 namespace ProductCatalog.Api.Imports;
 
-public sealed class ProductImportService(AppDbContext db, ILogger<ProductImportService> logger)
+public sealed class ProductImportService(
+    AppDbContext db, BooksToScrapeParser parser, ILogger<ProductImportService> logger)
 {
-    public async Task<ImportPreviewResponse> PreviewAsync(Uri uri, IProductParser parser, CancellationToken ct)
+    public async Task<ImportResponse> ImportAsync(Uri uri, CancellationToken ct)
     {
-        var parsed = await ParseValidatedAsync(uri, parser, ct);
-        var seen = await GetExistingAsync(parsed, ct);
-        var products = parsed.Products.Select(product => new PreviewProduct(
-            product.Name, product.Description, product.ImageUrl, product.Price, product.CurrencyCode,
-            product.SourceUrl, !seen.Add(product.SourceUrl))).ToArray();
-        var duplicates = products.Count(product => product.AlreadyImported);
-        logger.LogInformation("Import preview: {Found} found, {New} new, {Duplicates} duplicates, {Failed} failed",
-            parsed.Found, products.Length - duplicates, duplicates, parsed.Failed);
-        return new ImportPreviewResponse(uri.AbsoluteUri, parsed.Found, products.Length - duplicates,
-            duplicates, parsed.Failed, products);
-    }
-
-    public async Task<ImportConfirmResponse> ConfirmAsync(Uri uri, IProductParser parser, CancellationToken ct)
-    {
-        var parsed = await ParseValidatedAsync(uri, parser, ct);
+        var parsed = await parser.ParseAsync(uri, ct);
         var seen = await GetExistingAsync(parsed, ct);
         var created = 0;
         var skipped = 0;
@@ -53,25 +40,9 @@ public sealed class ProductImportService(AppDbContext db, ILogger<ProductImportS
 
         // One atomic save. The unique index remains the final guard for concurrent imports.
         await db.SaveChangesAsync(ct);
-        logger.LogInformation("Import confirmed: {Found} found, {Created} created, {Skipped} skipped, {Failed} failed",
+        logger.LogInformation("Import complete: {Found} found, {Created} created, {Skipped} skipped, {Failed} failed",
             parsed.Found, created, skipped, parsed.Failed);
-        return new ImportConfirmResponse(parsed.Found, created, skipped, parsed.Failed);
-    }
-
-    private async Task<ParseResult> ParseValidatedAsync(Uri uri, IProductParser parser, CancellationToken ct)
-    {
-        var parsed = await parser.ParseAsync(uri, ct);
-        var valid = parsed.Products.Where(product =>
-            ProductValidation.Validate(new UpdateProductRequest(product.Name, product.Description,
-                product.ImageUrl, product.Price, product.CurrencyCode)).Count == 0
-            && ProductValidation.IsHttpUrl(product.SourceUrl)).ToArray();
-        var invalid = parsed.Products.Count - valid.Length;
-        if (invalid > 0)
-        {
-            logger.LogWarning("Skipped {InvalidCount} parsed products with invalid data", invalid);
-        }
-
-        return new ParseResult(parsed.Found, parsed.Failed + invalid, valid);
+        return new ImportResponse(parsed.Found, created, skipped, parsed.Failed);
     }
 
     private async Task<HashSet<string>> GetExistingAsync(ParseResult parsed, CancellationToken ct)

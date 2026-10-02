@@ -58,9 +58,7 @@ public static class DependencyInjection
             options.Cookie.Name = "ProductCatalog.Auth";
             options.Cookie.HttpOnly = true;
             options.Cookie.SameSite = SameSiteMode.Strict;
-            options.Cookie.SecurePolicy = configuration.GetValue<bool>("Deployment:CookieSecureAlways")
-                ? CookieSecurePolicy.Always
-                : CookieSecurePolicy.SameAsRequest;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             options.SlidingExpiration = true;
             options.ExpireTimeSpan = TimeSpan.FromHours(8);
             options.Events.OnRedirectToLogin = context =>
@@ -101,12 +99,9 @@ public static class DependencyInjection
     {
         services.AddScoped<ProductService>();
         services.AddScoped<ProductImportService>();
-        services.AddScoped<ProductParserResolver>();
         services.AddTransient<SourcePageClient>();
-        services.AddTransient<IProductParser, BooksToScrapeParser>();
+        services.AddTransient<BooksToScrapeParser>();
         services.AddOptions<ParserOptions>().Bind(configuration.GetSection(ParserOptions.SectionName))
-            .Validate(options => options.SupportedHost == SourceUrlPolicy.SupportedHost,
-                "Only books.toscrape.com is supported.")
             .Validate(options => options.ProductLimit is >= 1 and <= 20, "ProductLimit must be between 1 and 20.")
             .Validate(options => options.MaxConcurrency is >= 1 and <= 4, "MaxConcurrency must be between 1 and 4.")
             .Validate(options => options.RequestTimeoutSeconds is >= 1 and <= 60,

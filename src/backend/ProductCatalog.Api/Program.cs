@@ -8,7 +8,7 @@ using ProductCatalog.Api.Products;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDatabase(builder.Configuration, builder.Environment);
-builder.Services.AddDeploymentConfiguration(builder.Configuration, builder.Environment);
+builder.Services.AddDataProtectionConfiguration(builder.Configuration, builder.Environment);
 builder.Services.AddApplicationIdentity(builder.Configuration);
 builder.Services.AddCatalogFeatures(builder.Configuration);
 builder.Services.AddProblemDetails();
@@ -18,7 +18,6 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-app.UseForwardedHeaders();
 app.UseExceptionHandler();
 app.UseStatusCodePages(context => Results.Problem(statusCode: context.HttpContext.Response.StatusCode)
     .ExecuteAsync(context.HttpContext));

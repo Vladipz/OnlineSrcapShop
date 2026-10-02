@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
-import { AuthStore } from '../../../core/auth/auth.store';
 import { apiErrorMessage, fieldErrors } from '../../../core/http/api-error';
 
 @Component({
@@ -12,9 +11,8 @@ import { apiErrorMessage, fieldErrors } from '../../../core/http/api-error';
   styleUrl: './login-page.component.scss',
 })
 export class LoginPageComponent {
-  private readonly service = inject(AuthService);
   private readonly router = inject(Router);
-  protected readonly auth = inject(AuthStore);
+  protected readonly auth = inject(AuthService);
   protected readonly form = inject(FormBuilder).nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
@@ -31,7 +29,7 @@ export class LoginPageComponent {
     this.errors.set({});
     try {
       const values = this.form.getRawValue();
-      await this.service.login({ email: values.email.trim(), password: values.password });
+      await this.auth.login({ email: values.email.trim(), password: values.password });
       this.form.controls.password.reset();
       await this.router.navigate(['/catalog']);
     } catch (error) {
@@ -46,7 +44,7 @@ export class LoginPageComponent {
   protected async retry(): Promise<void> {
     this.pending.set(true);
     try {
-      await this.service.restore();
+      await this.auth.restore();
       if (this.auth.user()) await this.router.navigate(['/catalog']);
     } finally {
       this.pending.set(false);

@@ -1,7 +1,4 @@
 <h1>Product catalog</h1>
-@if (summary()) {
-  <p class="status" role="status">{{ summary() }}</p>
-}
 @if (auth.isAdmin()) {
   <a class="button" routerLink="/import">Import products</a>
 }

@@ -10,10 +10,8 @@ using ProductCatalog.Api.Products;
 namespace ProductCatalog.Api.Parsing;
 
 public sealed class BooksToScrapeParser(
-    SourcePageClient pages, IOptions<ParserOptions> options, ILogger<BooksToScrapeParser> logger) : IProductParser
+    SourcePageClient pages, IOptions<ParserOptions> options, ILogger<BooksToScrapeParser> logger)
 {
-    public bool CanParse(Uri sourceUri) => SourceUrlPolicy.IsSupported(sourceUri);
-
     public async Task<ParseResult> ParseAsync(Uri sourceUri, CancellationToken cancellationToken = default)
     {
         var (html, finalUri) = await pages.LoadAsync(sourceUri, cancellationToken);

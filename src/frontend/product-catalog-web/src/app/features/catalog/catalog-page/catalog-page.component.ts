@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthStore } from '../../../core/auth/auth.store';
+import { AuthService } from '../../../core/auth/auth.service';
 import { apiErrorMessage } from '../../../core/http/api-error';
 import { Product } from '../data-access/product.models';
 import { ProductsApiService } from '../data-access/products-api.service';
@@ -10,23 +10,16 @@ import { ProductCardComponent } from '../product-card/product-card.component';
   selector: 'app-catalog-page',
   imports: [RouterLink, ProductCardComponent],
   templateUrl: './catalog-page.component.html',
-  styleUrl: './catalog-page.component.scss',
 })
 export class CatalogPageComponent implements OnInit {
-  protected readonly auth = inject(AuthStore);
+  protected readonly auth = inject(AuthService);
   private readonly api = inject(ProductsApiService);
   protected readonly products = signal<Product[]>([]);
   protected readonly loading = signal(true);
   protected readonly deleting = signal<number | null>(null);
   protected readonly error = signal('');
-  protected readonly summary = signal('');
 
   ngOnInit(): void {
-    this.summary.set(window.history.state?.importSummary ?? '');
-    // Consume the one-navigation summary; it is not an import draft.
-    const state = { ...window.history.state };
-    delete state.importSummary;
-    window.history.replaceState(state, '');
     void this.load();
   }
 
