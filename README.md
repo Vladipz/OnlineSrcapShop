@@ -1,5 +1,8 @@
 # Product Catalog Parser
 
+To support another site, implement `IProductParser`, register it in
+`Common/DependencyInjection.cs`, and allow the site's domains in `SourceUrlPolicy`.
+
 Angular frontend with an ASP.NET Core Minimal API backend and a SQLite database
 (EF Core + Identity). AngleSharp extracts names, descriptions, image URLs, and
 prices from [Books to Scrape](https://books.toscrape.com/), up to 20 books per

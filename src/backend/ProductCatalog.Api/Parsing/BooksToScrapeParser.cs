@@ -10,7 +10,7 @@ using ProductCatalog.Api.Products;
 namespace ProductCatalog.Api.Parsing;
 
 public sealed class BooksToScrapeParser(
-    SourcePageClient pages, IOptions<ParserOptions> options, ILogger<BooksToScrapeParser> logger)
+    SourcePageClient pages, IOptions<ParserOptions> options, ILogger<BooksToScrapeParser> logger) : IProductParser
 {
     public async Task<ParseResult> ParseAsync(Uri sourceUri, CancellationToken cancellationToken = default)
     {

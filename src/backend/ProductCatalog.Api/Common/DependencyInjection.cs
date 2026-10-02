@@ -100,7 +100,7 @@ public static class DependencyInjection
         services.AddScoped<ProductService>();
         services.AddScoped<ProductImportService>();
         services.AddTransient<SourcePageClient>();
-        services.AddTransient<BooksToScrapeParser>();
+        services.AddTransient<IProductParser, BooksToScrapeParser>();
         services.AddOptions<ParserOptions>().Bind(configuration.GetSection(ParserOptions.SectionName))
             .Validate(options => options.ProductLimit is >= 1 and <= 20, "ProductLimit must be between 1 and 20.")
             .Validate(options => options.MaxConcurrency is >= 1 and <= 4, "MaxConcurrency must be between 1 and 4.")

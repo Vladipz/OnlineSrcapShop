@@ -7,7 +7,7 @@ using ProductCatalog.Api.Products;
 namespace ProductCatalog.Api.Imports;
 
 public sealed class ProductImportService(
-    AppDbContext db, BooksToScrapeParser parser, ILogger<ProductImportService> logger)
+    AppDbContext db, IProductParser parser, ILogger<ProductImportService> logger)
 {
     public async Task<ImportResponse> ImportAsync(Uri uri, CancellationToken ct)
     {
